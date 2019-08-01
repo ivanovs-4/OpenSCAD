@@ -1,4 +1,5 @@
  {-# LANGUAGE FlexibleInstances #-}
+ {-# LANGUAGE FlexibleContexts #-}
 
 {- |
 Module      : Graphics.OpenSCAD
@@ -135,8 +136,7 @@ import Data.Colour (Colour, AlphaColour, alphaChannel, darken, over, black)
 import Data.Colour.Names as Colours
 import Data.Colour.SRGB (channelRed, channelBlue, channelGreen, toSRGB)
 import Data.List (elemIndices, nub, intercalate)
-import qualified Data.List.NonEmpty as NE
-import Data.Monoid ((<>), Monoid, mconcat, mempty, mappend)
+import Data.Monoid ((<>), Monoid, mconcat, mempty)
 import qualified Data.Set as Set
 import System.FilePath (FilePath)
 
@@ -307,9 +307,11 @@ polygon convexity paths
 unsafePolygon :: Int -> [Vector2d] -> [[Int]] -> Model2d
 unsafePolygon convexity points paths = Shape $ Polygon convexity points paths
 
+{-
 -- | 'offset' a 'Model2d's edges by @offset /delta join/@.
 offset :: Double -> Join -> Model2d -> Model2d
 offset d j (Shape s) = Shape $ Offset d j s
+-}
 
 -- Tools for creating Model3ds
 -- | Create a sphere with @sphere /radius 'Facet'/@.
@@ -371,7 +373,7 @@ polyhedron convexity paths
                                if null (tail maxLast)
                                   then head maxFirst
                                   else head (tail maxLast))
-        xCross a b c  = (\(a, b, c) -> a) $ (a #- b) #* (b #- c)
+        xCross a b c  = (\(a', _, _) -> a') $ (a #- b) #* (b #- c)
         sidesIn = map (concatMap (`elemIndices` points)) paths
         sides ss | any ((> 3) . length) ss  = Faces ss
                  | all ((== 3) . length) ss = Triangles ss
@@ -509,6 +511,7 @@ render (Transparent c s) =
 render (Var (Fa f) ss) = rList ("assign($fa=" ++ show f ++ ")") ss
 render (Var (Fs f) ss) = rList ("assign($fs=" ++ show f ++ ")") ss
 render (Var (Fn n) ss) = rList ("assign($fn=" ++ show n ++ ")") ss
+render (Var Def _) = ""
 
 -- utility for rendering Shapes.
 rShape :: Shape -> String
@@ -554,11 +557,15 @@ rSolid (Surface f i c) =
 rSolid (ToSolid s) = render s
 
 -- render a list of vectors as an Openscad vector of vectors.
+rVectorL :: Vector a => [a] -> [Char]
 rVectorL vs = "[" ++ intercalate "," (map rVector vs) ++ "]"
 
 -- render a Sides.
+rSides :: Sides -> [Char]
 rSides (Faces vs) = ",faces=" ++ rListL vs
 rSides (Triangles vs) = ",triangles=" ++ rListL vs
+
+rListL :: Show a => [a] -> [Char]
 rListL vs = "[" ++ intercalate "," (map show vs) ++ "]"
 
 -- | A convenience function to render a list of 'Model's by taking
@@ -577,10 +584,17 @@ drawL :: Vector v => [Model v] -> IO ()
 drawL = draw . Union
 
 -- And some misc. rendering utilities.
+rList :: (Foldable t, Vector v) => [Char] -> t (Model v) -> [Char]
 rList n ss = n ++ "{\n" ++  concatMap render ss ++ "}"
+
+rVecSolid :: (Vector a, Vector v) => [Char] -> a -> Model v -> [Char]
 rVecSolid n v s = n ++ "(" ++ rVector v ++ ")\n" ++ render s
+
+rQuad :: (Show a, Show b, Show c, Show d) => (a, b, c, d) -> [Char]
 rQuad (w, x, y, z) =
   "[" ++ show w ++ "," ++ show x ++ "," ++ show y ++ "," ++ show z ++ "]"
+
+rFacet :: Facet -> [Char]
 rFacet Def = ""
 rFacet f = "," ++ showFacet f
 
@@ -619,11 +633,13 @@ diam :: Double -> Double
 diam = (/ 2)
 
 -- Now, let Haskell work it's magic
+instance Vector v => Semigroup (Model v) where
+  (<>) (Solid (Box 0 0 0)) b = b
+  (<>) a (Solid (Box 0 0 0)) = a
+  (<>) a b = union [a, b]
+
 instance Vector v => Monoid (Model v) where
   mempty = Solid $ Box 0 0 0
-  mappend (Solid (Box 0 0 0)) b = b
-  mappend a (Solid (Box 0 0 0)) = a
-  mappend a b = union [a, b]
   mconcat [a] = a
   mconcat as = union as
 
@@ -631,4 +647,5 @@ instance Vector v => Monoid (Model v) where
 -- | You can use '(#)' to write transformations in a more readable postfix form,
 --   cube 3 # color red # translate (-3, -3, -3)
 infixl 8 #
+(#) :: a -> (a -> c) -> c
 (#) = flip ($)
