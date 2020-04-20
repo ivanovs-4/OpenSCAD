@@ -27,11 +27,11 @@ library
   exposed-modules:     Graphics.OpenSCAD, Graphics.OpenSCAD.Unicode
   -- other-modules:
   other-extensions:    UnicodeSyntax
-  build-depends: base >=4.12 && <4.13,
-                 colour >=2.3 && < 2.4,
-                 filepath >=1.3 && < 1.5,
-                 semigroups >= 0.15 && < 1.0,
-                 containers >= 0.5
+  build-depends: base
+               , colour
+               , filepath
+               , semigroups
+               , containers
   -- hs-source-dirs:
   default-language:    Haskell2010
 
