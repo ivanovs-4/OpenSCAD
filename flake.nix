@@ -17,7 +17,7 @@
         jailbreakUnbreak = pkg:
           pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
 
-        packageName = "OpenSCAD";
+        packageName = "openscad";
       in {
         packages.${packageName} = # (ref:haskell-package-def)
           haskellPackages.callCabal2nix packageName self rec {
