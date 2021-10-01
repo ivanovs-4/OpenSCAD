@@ -7,8 +7,8 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    # flake-utils.lib.eachDefaultSystem (system:
-    flake-utils.lib.eachSystem ["x86_64-linux"] (system:
+    flake-utils.lib.eachDefaultSystem (system:
+    # flake-utils.lib.eachSystem ["x86_64-linux"] (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
@@ -28,11 +28,10 @@
 
         devShell = pkgs.mkShell {
           buildInputs = with haskellPackages; [
-            # haskell-language-server
             ghcid
             cabal-install
           ];
-          inputsFrom = builtins.attrValues self.packages.${system};
+          inputsFrom = [ self.defaultPackage ];
         };
       });
 }
