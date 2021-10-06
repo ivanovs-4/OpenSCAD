@@ -125,7 +125,7 @@ module Graphics.OpenSCAD (
   -- ** Rendering
   render, renderL,
   -- ** 'Facet's.
-  var, fn, fs, fa, def,
+  var, fn, fs, fa,
   -- ** General convenience functions
   diam, draw, drawL, (#),
   module Colours)
@@ -135,6 +135,7 @@ where
 import Data.Colour (Colour, AlphaColour, alphaChannel, darken, over, black)
 import Data.Colour.Names as Colours
 import Data.Colour.SRGB (channelRed, channelBlue, channelGreen, toSRGB)
+import Data.Default
 import Data.List (elemIndices, nub, intercalate)
 import Data.Monoid ((<>), Monoid, mconcat, mempty)
 import qualified Data.Set as Set
@@ -624,8 +625,9 @@ fn = Fn
 
 -- | 'def' is used where a 'Facet' is needed but we don't want to change
 -- any of the values.
-def :: Facet
-def = Def
+instance Default Facet
+  where
+    def = Def
 
 -- And one last convenience function.
 -- | Use 'diam' to turn a diameter into a radius for circles, spheres, etc.
