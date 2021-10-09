@@ -15,13 +15,31 @@
         "type": "github"
       }
     },
+    "haskell-flake-utils": {
+      "inputs": {
+        "flake-utils": "flake-utils"
+      },
+      "locked": {
+        "lastModified": 1633976556,
+        "narHash": "sha256-Czfnh5yeE2JyRYoypoKHtWOFmrrqf+We5063ik0cvkY=",
+        "owner": "ivanovs-4",
+        "repo": "haskell-flake-utils",
+        "rev": "2566d76e2b4b9c6e6cd7dabcf0cd96eb3a54738f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ivanovs-4",
+        "repo": "haskell-flake-utils",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1633117574,
-        "narHash": "sha256-TStHiNXIc2ryjmQYRfS3ltAlPg66Yz3bom0zYj70iXY=",
+        "lastModified": 1633982831,
+        "narHash": "sha256-MLYar7CVfQHaTk2ZojYOVlQqPtqU0Swpxb6I3IkZ++s=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2415e9a70eb26a3960f87f083479a2ef419aca3e",
+        "rev": "2cdd608fab0af07647da29634627a42852a8c97f",
         "type": "github"
       },
       "original": {
@@ -32,7 +50,7 @@
     },
     "root": {
       "inputs": {
-        "flake-utils": "flake-utils",
+        "haskell-flake-utils": "haskell-flake-utils",
         "nixpkgs": "nixpkgs"
       }
     }
